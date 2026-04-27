@@ -1,0 +1,50 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Editor and local agent files
+.vscode/
+.idea/
+.codex
+scripts/.codex
+
+# Training/evaluation outputs
+runs/
+outputs/
+logs/
+
+# Model checkpoints and exported weights
+checkpoints/
+weights/
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.engine
+
+# Local datasets
+data/train/
+data/val/
+data/test/
+datasets/
+
+# Local archives that are kept for reference but not published
+experiments/legacy/
+
+# Large media and generated result files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.wmv
+*.flv
+
+# OS files
+.DS_Store
+Thumbs.db

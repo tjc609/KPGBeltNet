@@ -1,0 +1,18 @@
+# Seat Belt Detection - Requirements
+# ===================================
+# Paper: "Seat Belt Detection using Part-to-Whole Attention 
+#         on Diagonally Sampled Patches"
+
+# Core dependencies
+torch>=1.12.0
+torchvision>=0.13.0
+numpy>=1.21.0
+Pillow>=8.0.0
+opencv-python>=4.5.0
+ultralytics>=8.0.0
+matplotlib>=3.5.0
+seaborn>=0.11.0
+mss>=6.0.0
+
+# Optional: for data augmentation
+# albumentations>=1.0.0
