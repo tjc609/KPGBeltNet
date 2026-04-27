@@ -43,33 +43,6 @@ The dataset used in the paper is not included in this repository.
 
 **Download link will be available upon publication of our paper.**
 
-After downloading the dataset, organize it in the following ImageFolder-style structure:
-
-```text
-data/
-|-- train/
-|   |-- PassengerWithSeatBelt/
-|   |   |-- image001.jpg
-|   |   `-- ...
-|   `-- PassengerWithoutSeatBelt/
-|       |-- image001.jpg
-|       `-- ...
-`-- val/
-    |-- PassengerWithSeatBelt/
-    |   |-- image001.jpg
-    |   `-- ...
-    `-- PassengerWithoutSeatBelt/
-        |-- image001.jpg
-        `-- ...
-```
-
-The data loader also accepts the following class folder names:
-
-- Positive class: `PassengerWithSeatBelt`, `PassengerWithSeatBelt_aug`, `WithSeatBelt`, `with_belt`, `positive`, `1`
-- Negative class: `PassengerWithoutSeatBelt`, `PassengerWithoutSeatBelt_aug`, `WithoutSeatBelt`, `without_belt`, `negative`, `0`
-
-Full datasets, generated outputs, and checkpoints are ignored by Git.
-
 ---
 
 ## Repository Structure
@@ -100,7 +73,7 @@ KPGBeltNet/
 
 ## Train
 
-1. Prepare the dataset according to the directory structure above.
+1. Prepare the training and validation data paths.
 
 2. Launch training:
 
@@ -182,18 +155,3 @@ YOLO pose weights and trained KPGBeltNet checkpoints are not included in this re
 - This repository only keeps the source code needed to retrain and redeploy KPGBeltNet.
 - Do not commit `runs/`, datasets, model weights, videos, or generated inference outputs.
 - If trained weights need to be released, use GitHub Releases, cloud storage, or Git LFS.
-
----
-
-## Citation
-
-If you find this repository useful, please cite our paper:
-
-```bibtex
-@article{kpgbeltnet2024,
-  title={KPGBeltNet: In-Vehicle Seatbelt Detection Based on Keypoint-Guided Sampling and Local-Global Attention},
-  author={...},
-  journal={...},
-  year={2024}
-}
-```
