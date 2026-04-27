@@ -1,97 +1,108 @@
-# Seat Belt Detection using Part-to-Whole Attention
+# KPGBeltNet: In-Vehicle Seatbelt Detection Based on Keypoint-Guided Sampling and Local-Global Attention
 
-This repository contains the core implementation for the paper:
+This repository provides the core implementation of **KPGBeltNet**, an in-vehicle seatbelt detection method designed for cropped upper-body regions of vehicle occupants.
 
-**"Seat Belt Detection using Part-to-Whole Attention on Diagonally Sampled Patches"**
+KPGBeltNet uses human keypoint-guided diagonal patch sampling and a local-global attention mechanism to enhance discriminative seatbelt features under in-vehicle occlusion, pose variation, and illumination changes.
 
-The repository is intentionally kept minimal so that it can be cloned and redeployed on another machine. It includes model modules, data loading code, and training/evaluation/inference scripts. Training outputs, checkpoints, videos, full datasets, and local experiment drafts are excluded from Git.
+The proposed framework comprises three core components:
 
-## Method Overview
+1. Keypoint-guided ROI and diagonal patch sampling.
+2. Dual-stream MobileNetV3 feature extraction for global and local visual cues.
+3. Local-global attention with a Bi-GRU sequence encoder for binary seatbelt classification.
 
-The model classifies whether a cropped upper-body ROI contains a visible seat belt.
+---
+
+## Requirements
+
+Python 3.9+ is recommended. The main dependencies are PyTorch, torchvision, OpenCV, Ultralytics, NumPy, Pillow, matplotlib, and seaborn.
+
+Install the environment as follows:
+
+```bash
+git clone https://github.com/tjc609/KPGBeltNet.git
+cd KPGBeltNet
+
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+On Windows, activate the virtual environment with:
+
+```bash
+.venv\Scripts\activate
+```
+
+For GPU training, install the PyTorch build that matches your CUDA version before installing the remaining packages.
+
+---
+
+## Dataset
+
+The dataset used in the paper is not included in this repository.
+
+**Download link will be available upon publication of our paper.**
+
+After downloading the dataset, organize it in the following ImageFolder-style structure:
 
 ```text
-Input ROI image
-    -> diagonal patch sampler
-    -> global MobileNetV3 + local MobileNetV3
-    -> Part-to-Whole attention
-    -> Bi-GRU sequence encoder
-    -> binary classifier
+data/
+|-- train/
+|   |-- PassengerWithSeatBelt/
+|   |   |-- image001.jpg
+|   |   `-- ...
+|   `-- PassengerWithoutSeatBelt/
+|       |-- image001.jpg
+|       `-- ...
+`-- val/
+    |-- PassengerWithSeatBelt/
+    |   |-- image001.jpg
+    |   `-- ...
+    `-- PassengerWithoutSeatBelt/
+        |-- image001.jpg
+        `-- ...
 ```
+
+The data loader also accepts the following class folder names:
+
+- Positive class: `PassengerWithSeatBelt`, `PassengerWithSeatBelt_aug`, `WithSeatBelt`, `with_belt`, `positive`, `1`
+- Negative class: `PassengerWithoutSeatBelt`, `PassengerWithoutSeatBelt_aug`, `WithoutSeatBelt`, `without_belt`, `negative`, `0`
+
+Full datasets, generated outputs, and checkpoints are ignored by Git.
+
+---
 
 ## Repository Structure
 
 ```text
-SeatBeltV1/
-├── data/
-│   ├── __init__.py
-│   └── dataset.py
-├── models/
-│   ├── __init__.py
-│   ├── attention.py
-│   ├── classifier.py
-│   ├── feature_extractor.py
-│   ├── patch_sampler.py
-│   ├── pipeline.py
-│   └── sequence_encoder.py
-├── scripts/
-│   ├── train.py
-│   ├── inference.py
-│   ├── evaluate_confusion_matrix.py
-│   └── detect_seatbelt.py
-├── requirements.txt
-├── .gitignore
-└── README.md
+KPGBeltNet/
+|-- data/
+|   |-- __init__.py
+|   `-- dataset.py
+|-- models/
+|   |-- __init__.py
+|   |-- attention.py
+|   |-- classifier.py
+|   |-- feature_extractor.py
+|   |-- patch_sampler.py
+|   |-- pipeline.py
+|   `-- sequence_encoder.py
+|-- scripts/
+|   |-- train.py
+|   |-- inference.py
+|   |-- evaluate_confusion_matrix.py
+|   `-- detect_seatbelt.py
+|-- requirements.txt
+`-- README.md
 ```
 
-## Installation
+---
 
-Python 3.9+ is recommended.
+## Train
 
-```bash
-git clone https://github.com/YOUR_NAME/SeatBeltV1.git
-cd SeatBeltV1
+1. Prepare the dataset according to the directory structure above.
 
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-For CUDA training, install the PyTorch build that matches your CUDA version before installing the remaining dependencies.
-
-## Dataset
-
-The paper dataset is not included in this repository.
-
-**Download link will be available upon publication of our paper.**
-
-After downloading, place the dataset in an ImageFolder-style class directory layout:
-
-```text
-data/
-├── train/
-│   ├── PassengerWithSeatBelt/
-│   │   ├── image001.jpg
-│   │   └── ...
-│   └── PassengerWithoutSeatBelt/
-│       ├── image001.jpg
-│       └── ...
-└── val/
-    ├── PassengerWithSeatBelt/
-    │   ├── image001.jpg
-    │   └── ...
-    └── PassengerWithoutSeatBelt/
-        ├── image001.jpg
-        └── ...
-```
-
-Accepted positive class folder names include `PassengerWithSeatBelt`, `PassengerWithSeatBelt_aug`, `WithSeatBelt`, `with_belt`, `positive`, and `1`.
-
-Accepted negative class folder names include `PassengerWithoutSeatBelt`, `PassengerWithoutSeatBelt_aug`, `WithoutSeatBelt`, `without_belt`, `negative`, and `0`.
-
-Full datasets are ignored by Git through `.gitignore`.
-
-## Training
+2. Launch training:
 
 ```bash
 python scripts/train.py \
@@ -102,15 +113,21 @@ python scripts/train.py \
   --lr 1e-4
 ```
 
-By default, checkpoints and logs are saved under `runs/train_YYYYmmdd_HHMMSS/`.
-
-Useful options:
+3. Resume or customize training by setting command-line options:
 
 ```bash
 python scripts/train.py --help
 ```
 
-## Evaluation
+Checkpoints and logs are saved to:
+
+```text
+runs/train_YYYYmmdd_HHMMSS/
+```
+
+---
+
+## Evaluate
 
 Evaluate a trained checkpoint on the validation set:
 
@@ -120,11 +137,13 @@ python scripts/evaluate_confusion_matrix.py \
   --eval-dirs data/val
 ```
 
-This saves `confusion_matrix_results.json` and, when visualization dependencies are installed, `confusion_matrix.png`.
+The script reports accuracy, precision, recall, F1 score, specificity, and the confusion matrix. It also saves evaluation results under the checkpoint directory unless another output directory is specified.
 
-## Classifier Inference
+---
 
-Run the classifier on cropped upper-body ROI images:
+## Inference
+
+Run classifier inference on cropped upper-body ROI images:
 
 ```bash
 python scripts/inference.py \
@@ -133,7 +152,7 @@ python scripts/inference.py \
   --output-dir runs/inference
 ```
 
-For a single image:
+For a single ROI image:
 
 ```bash
 python scripts/inference.py \
@@ -141,9 +160,11 @@ python scripts/inference.py \
   --image path/to/roi.jpg
 ```
 
+---
+
 ## Full Detection Pipeline
 
-`scripts/detect_seatbelt.py` combines a YOLO pose model with the trained seat belt classifier. You must provide both weights:
+The full detection script combines a YOLO pose model with the trained KPGBeltNet classifier. Provide both the YOLO pose weights and the trained seatbelt checkpoint:
 
 ```bash
 python scripts/detect_seatbelt.py \
@@ -152,21 +173,25 @@ python scripts/detect_seatbelt.py \
   --seatbelt-weights runs/train_YYYYmmdd_HHMMSS/best_model.pth
 ```
 
-YOLO pose weights and trained seat belt checkpoints are not included in this repository.
+YOLO pose weights and trained KPGBeltNet checkpoints are not included in this repository.
+
+---
 
 ## Notes
 
+- This repository only keeps the source code needed to retrain and redeploy KPGBeltNet.
 - Do not commit `runs/`, datasets, model weights, videos, or generated inference outputs.
-- Publish trained checkpoints through GitHub Releases, cloud storage, or Git LFS if needed.
-- The repository tracks only the source files required to retrain and redeploy the method.
+- If trained weights need to be released, use GitHub Releases, cloud storage, or Git LFS.
+
+---
 
 ## Citation
 
-If you use this code, please cite:
+If you find this repository useful, please cite our paper:
 
 ```bibtex
-@article{seatbelt2024,
-  title={Seat Belt Detection using Part-to-Whole Attention on Diagonally Sampled Patches},
+@article{kpgbeltnet2024,
+  title={KPGBeltNet: In-Vehicle Seatbelt Detection Based on Keypoint-Guided Sampling and Local-Global Attention},
   author={...},
   journal={...},
   year={2024}
